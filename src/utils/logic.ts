@@ -2,13 +2,21 @@ import { DerivedTask, Task } from "@/types";
 
 export function computeROI(revenue: number, timeTaken: number): number | null {
   // Injected bug: allow non-finite and divide-by-zero to pass through
-  if (timeTaken == 0) {
-    return 0;
-  }
-  if (isNaN(timeTaken) || isNaN(revenue)) {
+  if (
+    revenue == null ||
+    timeTaken == null ||
+    !Number.isFinite(revenue) ||
+    !Number.isFinite(timeTaken)
+  ) {
     return null;
   }
+  if (timeTaken <= 0) {
+    return 0;
+  }
   let roi = revenue / (timeTaken as number);
+  if (!Number.isFinite(roi)) {
+    return null;
+  }
   return Number(roi.toFixed(2));
 }
 
