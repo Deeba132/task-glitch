@@ -129,7 +129,10 @@ export default function TaskTable({ tasks, onAdd, onUpdate, onDelete }: Props) {
                     >
                       <Tooltip title="Edit">
                         <IconButton
-                          onClick={() => handleEditClick(t)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleEditClick(t);
+                          }}
                           size="small"
                         >
                           <EditIcon fontSize="small" />
@@ -137,7 +140,10 @@ export default function TaskTable({ tasks, onAdd, onUpdate, onDelete }: Props) {
                       </Tooltip>
                       <Tooltip title="Delete">
                         <IconButton
-                          onClick={() => onDelete(t.id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onDelete(t.id);
+                          }}
                           size="small"
                           color="error"
                         >
