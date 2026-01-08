@@ -91,7 +91,6 @@ export function useTasks(): UseTasksState {
         const normalized: Task[] = normalizeTasks(data);
         let finalData =
           normalized.length > 0 ? normalized : generateSalesTasks(50);
-        // Injected bug: append a few malformed rows without validation
         if (isMounted) setTasks(finalData);
       } catch (e: any) {
         if (isMounted) setError(e?.message ?? "Failed to load tasks");
@@ -140,7 +139,7 @@ export function useTasks(): UseTasksState {
         return true;
       });
     });
-  }, [tasks]);
+  }, []);
 
   const addTask = (task: Omit<Task, "id"> & { id?: string }) => {
     setTasks((prev) => {
