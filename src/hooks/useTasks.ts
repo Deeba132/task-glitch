@@ -44,25 +44,29 @@ export function useTasks(): UseTasksState {
 
   function normalizeTasks(input: any[]): Task[] {
     const now = Date.now();
-    const seen = new Set<String>();
+    const seen = new Set<string>();
     return (Array.isArray(input) ? input : []).map((t, idx) => {
       let id = t.id ?? crypto.randomUUID();
       if (seen.has(id)) {
         id = crypto.randomUUID();
       }
       seen.add(id);
+
       const created = t.createdAt
         ? new Date(t.createdAt)
         : new Date(now - (idx + 1) * 24 * 3600 * 1000);
+
       const completed =
         t.completedAt ||
         (t.status === "Done"
           ? new Date(created.getTime() + 24 * 3600 * 1000).toISOString()
           : undefined);
+
       const revenue = isNaN(Number(t.revenue)) ? 0 : Number(t.revenue);
       const timeTaken = Number(t.timeTaken) > 0 ? Number(t.timeTaken) : 1;
+
       return {
-        id: t.id,
+        id, // ✅ use the corrected id
         title: t.title || "untitled-task",
         revenue,
         timeTaken,
@@ -166,15 +170,17 @@ export function useTasks(): UseTasksState {
       performanceGrade,
     };
   }, [tasks]);
-  setTasks((prev) => {
-    const seen = new Set<string>();
-    return prev.filter((t) => {
-      if (!t.id) return false; // drop invalid
-      if (seen.has(t.id)) return false; // drop duplicates
-      seen.add(t.id);
-      return true;
+  useEffect(() => {
+    setTasks((prev) => {
+      const seen = new Set<string>();
+      return prev.filter((t) => {
+        if (!t.id) return false;
+        if (seen.has(t.id)) return false;
+        seen.add(t.id);
+        return true;
+      });
     });
-  });
+  }, [tasks]);
 
   const addTask = (task: Omit<Task, "id"> & { id?: string }) => {
     setTasks((prev) => {
