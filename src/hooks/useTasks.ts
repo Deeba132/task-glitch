@@ -166,17 +166,25 @@ export function useTasks(): UseTasksState {
       performanceGrade,
     };
   }, [tasks]);
-
-  const addTask = useCallback((task: Omit<Task, "id"> & { id?: string }) => {
-    setTasks((prev) => {
-      const id = task.id ?? crypto.randomUUID();
-      const timeTaken = task.timeTaken <= 0 ? 1 : task.timeTaken; // auto-correct
-      const createdAt = new Date().toISOString();
-      const status = task.status;
-      const completedAt = status === "Done" ? createdAt : undefined;
-      return [...prev, { ...task, id, timeTaken, createdAt, completedAt }];
+  setTasks((prev) => {
+    const seen = new Set<string>();
+    return prev.filter((t) => {
+      if (!t.id) return false; // drop invalid
+      if (seen.has(t.id)) return false; // drop duplicates
+      seen.add(t.id);
+      return true;
     });
-  }, []);
+  });
+
+  const addTask = (task: Omit<Task, "id"> & { id?: string }) => {
+    setTasks((prev) => {
+      let id = task.id ?? crypto.randomUUID();
+      while (prev.some((t) => t.id === id)) {
+        id = crypto.randomUUID(); // ensure unique
+      }
+      return [...prev, { ...task, id }];
+    });
+  };
 
   const updateTask = useCallback((id: string, patch: Partial<Task>) => {
     setTasks((prev) => {
